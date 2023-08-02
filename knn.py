@@ -1,6 +1,6 @@
 def normalization(dados):
     ## Normalização uilizando o Min-max
-    for i in dados:
+    for i in range(len(dados)):
         minimo = min(dados[i])
         maximo = max(dados[i])
 
@@ -30,22 +30,18 @@ def knn(dadoFebre, dadoEnjoo, dadoMancha, k):
     mancha = [3, 2, 3, 0, 4]
     diagnostico = ["DOENTE", "SAUDÁVEL", "DOENTE", "SAUDÁVEL", "DOENTE"]
     
-
-    dados = {'febre': febre, 'enjoo': enjoo, 'mancha': mancha}
-    
-    dados_normalizados = normalization(dados)
+    dados_normalizados = normalization([febre, enjoo, mancha])
 
     distancia = [float('inf')]*k
-    print(distancia)
     knnLista = [0]*k
 
-    for i in range(len(dados_normalizados["enjoo"])):
+    for i in range(len(dados_normalizados[0])):
         maximo = max(distancia)
         dist = euclediana(
             dadoFebre, dadoEnjoo, dadoMancha, 
-            dados_normalizados["febre"][i],
-            dados_normalizados["enjoo"][i],
-            dados_normalizados["mancha"][i])
+            dados_normalizados[0][i],
+            dados_normalizados[1][i],
+            dados_normalizados[2][i])
         if dist < maximo:
             j= distancia.index(maximo)
             distancia[j] = dist
@@ -55,16 +51,20 @@ def knn(dadoFebre, dadoEnjoo, dadoMancha, k):
     qtdDoentes = knnLista.count('DOENTE')
     qtdSaudaveis = knnLista.count('SAUDÁVEL')
 
-    febre = febre.append()
-    enjoo = [1, 0, 1, 0, 0]
-    mancha = [3, 2, 3, 0, 4]
-    diagnostico = ["DOENTE", "SAUDÁVEL", "DOENTE", "SAUDÁVEL", "DOENTE"]
-    
+    febre.append(dadoFebre)
+    enjoo.append(dadoEnjoo)
+    mancha.append(dadoMancha)
+    if qtdDoentes < qtdSaudaveis: 
+        diagnostico.append("SAUDÁVEL")
+    elif qtdDoentes > qtdSaudaveis:
+        diagnostico.append("DOENTE")
+    else:
+        diagnostico.append(
+            knnLista[distancia.index(min(distancia))])
+
 
     dados = {'febre': febre, 'enjoo': enjoo, 'mancha': mancha, 'diagnostico': diagnostico}
+    print(dados)
     
-
-
-
 
 knn(1, 0, 1, 2)
