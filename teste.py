@@ -28,7 +28,7 @@ print("\nNN1")
 nn1 = sklearn.neighbors.KNeighborsClassifier(n_neighbors=1,metric=mymetric)
 nn1.fit(trainpatterns,classes)
 res = nn1.kneighbors(testpattern)
-print(res[0]) # Distâncias
+print(res[1]) # Distâncias
 print(classes[res[1]]) # Classes dos vizinhos mais próximos
 print('Usando 1 vizinho classificou: ', nn1.predict(testpattern))
 
@@ -36,7 +36,7 @@ print("\nNN2")
 nn2 = sklearn.neighbors.KNeighborsClassifier(n_neighbors=2,metric=mymetric)
 nn2.fit(trainpatterns,classes)
 res = nn2.kneighbors(testpattern)
-print(res[0]) # Distâncias
+print(res[1]) # Distâncias
 print(classes[res[1]]) # Classes dos vizinhos mais próximos
 print('Usando 2 vizinhos classificou: ', nn1.predict(testpattern))
 
