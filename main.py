@@ -1,10 +1,12 @@
 from knn import knn;
+from tree import tree;
 from crossValidate import cross_validation;
 from plotResult import plot_result;
 
 import pandas as pd;
+import sklearn.preprocessing;
 import sklearn.neighbors;
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import DecisionTreeClassifier;
 
 
 database = pd.read_table('/content/spambase.data', sep=',', header=None).to_numpy(dtype='float');
@@ -26,11 +28,17 @@ Usando o sklearn.model_selection.KFold;
 
 '''
 knn(data,
-          tags,
-          n_neighbor= 3,
-          mymetric= "euclidean",
-          model_selection= "KFold",
-          n_split= 5
+    tags,
+    n_neighbor= 3,
+    mymetric= "euclidean",
+    model_selection= "KFold",
+    n_split= 5
+)
+
+tree(data,
+    tags,
+    model_selection= "KFold",
+    n_split= 5
 )
 
 '''

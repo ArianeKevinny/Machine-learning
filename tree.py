@@ -1,13 +1,11 @@
 #class sklearn.model_selection.KFold(n_splits=5, *, shuffle=False, random_state=None)
-from sklearn.model_selection import train_test_split;
+from sklearn.tree import DecisionTreeClassifier;
 import numpy as np;
-import sklearn.neighbors;
 from sklearn.model_selection import KFold;
+from sklearn.model_selection import train_test_split;
 
+def tree(data, tags, model_selection, n_split):
 
-def knn(data, tags, n_neighbor, mymetric, model_selection, n_split):
-
-    print("Calculo de distancia: ", mymetric)
     print("Modo de amostragem: ", model_selection)
 
     # Amostragem dos Dados
@@ -37,14 +35,12 @@ def knn(data, tags, n_neighbor, mymetric, model_selection, n_split):
                 testpattern = np.concatenate((testpattern, data[index:index+1]));
                 classes_testpattern = np.concatenate((classes_testpattern, tags[index:index+1]));
 
-            nn1 = sklearn.neighbors.KNeighborsClassifier(n_neighbors=n_neighbor,metric=mymetric);
-            nn1.fit(trainpatterns,classes);
-            res = nn1.kneighbors(testpattern);
-            print(res[0]) # Distâncias
-            print(classes[res[1]]) # Classes dos vizinhos mais próximos
-            print('Usando ', n_neighbor, ' vizinho classificou: ', nn1.predict(testpattern))
+            tree = sklearn.tree.DecisionTreeClassifier(criterion="entropy", random_state=0);
+            tree.fit(trainpatterns,classes);
+            print('Classificou: ', tree.predict(testpattern));
+            print("Score:", tree.score(testpattern, classes_testpattern))
 
-        
+    
     else:
       
       trainpatterns, testpattern, classes, classes_testpattern = train_test_split(data, tags, test_size=0.33, random_state=42)
@@ -56,11 +52,7 @@ def knn(data, tags, n_neighbor, mymetric, model_selection, n_split):
 #        classes_testpattern = classes[n:];
 
 
-      nn1 = sklearn.neighbors.KNeighborsClassifier(n_neighbors=n_neighbor,metric=mymetric);
-      nn1.fit(trainpatterns,classes);
-      res = nn1.kneighbors(testpattern);
-      print(res[0]) # Distâncias
-      print(classes[res[1]]) # Classes dos vizinhos mais próximos
-      print('Usando ', n_neighbor, ' vizinho classificou: ', nn1.predict(testpattern))
-
-      print("Score:", nn1.score(testpattern, classes_testpattern))
+      tree = sklearn.tree.DecisionTreeClassifier(criterion="entropy", random_state=0);
+      tree.fit(trainpatterns,classes);
+      print('Classificou: ', tree.predict(testpattern));
+      print("Score:", tree.score(testpattern, classes_testpattern))
