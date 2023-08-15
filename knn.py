@@ -1,70 +1,62 @@
-def normalization(dados):
-    ## Normalização uilizando o Min-max
-    for i in range(len(dados)):
-        minimo = min(dados[i])
-        maximo = max(dados[i])
+import pandas as pd;
+import numpy as np;
+import sklearn.neighbors;
+import sklearn.preprocessing;
+from sklearn.model_selection import KFold;
 
-        for j in range(len(dados[i])):
-            aux = (dados[i][j] - minimo)/(maximo - minimo)
-            dados[i][j] = aux
-    
-    ## Normalização utilizando Soma
-    """
-    for i in dados:
-        soma = sum(dados[i])
-        for j in range(len(dados[i])):
-            dados[i][j] = dados[i][j]/soma    
-    """
+#class sklearn.model_selection.KFold(n_splits=5, *, shuffle=False, random_state=None)
 
-    return dados
+def knn(data, tags, n_neighbor, mymetric, model_selection, n_split):
 
-def euclediana(x1, y1, z1, x2, y2, z2):
-    aux = (x1-x2)**2 + (y1-y2)**2 + (z1-z2)**2
-    return aux ** 0.5
+    print("Calculo de distancia: ", mymetric)
+    print("Modo de amostragem: ", model_selection)
 
+    # Amostragem dos Dados
+    if model_selection == 'KFold':
+        kf = globals()["KFold"](n_splits=n_split)
+        
+        for i, (train_index, test_index) in enumerate(kf.split(data, tags)):
+            print(f"Fold {i}:");
+            #print(f"  Train: index={train_index}");
+            #print(f"  Test:  index={test_index}");
 
-def knn(dadoFebre, dadoEnjoo, dadoMancha, k):
-#def knn():
-    febre = [0, 1, 2, 2, 0]
-    enjoo = [1, 0, 1, 0, 0]
-    mancha = [3, 2, 3, 0, 4]
-    diagnostico = ["DOENTE", "SAUDÁVEL", "DOENTE", "SAUDÁVEL", "DOENTE"]
-    
-    dados_normalizados = normalization([febre, enjoo, mancha])
+            for i, index in enumerate(train_index):
+                if (i == 0):
+                    trainpatterns = data[index:index+1];
+                    classes = tags[index:index+1];
+                    continue;
+                
+                trainpatterns = np.concatenate((trainpatterns, data[index:index+1])); 
+                classes = np.concatenate((classes, tags[index:index+1]));
 
-    distancia = [float('inf')]*k
-    knnLista = [0]*k
+            for i, index in enumerate(train_index):
+                if (i == 0):
+                    testpattern = data[index:index+1];
+                    classes_testpattern = tags[index:index+1];
+                    continue;
+        
+                testpattern = np.concatenate((testpattern, data[index:index+1]));
+                classes_testpattern = np.concatenate((classes_testpattern, tags[index:index+1]));
 
-    for i in range(len(dados_normalizados[0])):
-        maximo = max(distancia)
-        dist = euclediana(
-            dadoFebre, dadoEnjoo, dadoMancha, 
-            dados_normalizados[0][i],
-            dados_normalizados[1][i],
-            dados_normalizados[2][i])
-        if dist < maximo:
-            j= distancia.index(maximo)
-            distancia[j] = dist
-            knnLista[j] = diagnostico[i]
-    
-    ## Verificando a classe de seus k vizinhos mais próximos
-    qtdDoentes = knnLista.count('DOENTE')
-    qtdSaudaveis = knnLista.count('SAUDÁVEL')
+            nn1 = sklearn.neighbors.KNeighborsClassifier(n_neighbors=n_neighbor,metric=mymetric);
+            nn1.fit(trainpatterns,classes);
+            res = nn1.kneighbors(testpattern);
+            print(res[0]) # Distâncias
+            print(classes[res[1]]) # Classes dos vizinhos mais próximos
+            print('Usando ', n_neighbor, ' vizinho classificou: ', nn1.predict(testpattern))
 
-    febre.append(dadoFebre)
-    enjoo.append(dadoEnjoo)
-    mancha.append(dadoMancha)
-    if qtdDoentes < qtdSaudaveis: 
-        diagnostico.append("SAUDÁVEL")
-    elif qtdDoentes > qtdSaudaveis:
-        diagnostico.append("DOENTE")
+        
     else:
-        diagnostico.append(
-            knnLista[distancia.index(min(distancia))])
+        n = len(data)*0.1
+        trainpatterns = data[:n];
+        classes = tags[:n];
+        testpattern = data[n:];
+        classes_testpattern = classes[n:];
 
 
-    dados = {'febre': febre, 'enjoo': enjoo, 'mancha': mancha, 'diagnostico': diagnostico}
-    print(dados)
-    
-
-knn(1, 0, 1, 2)
+        nn1 = sklearn.neighbors.KNeighborsClassifier(n_neighbors=n_neighbor,metric=mymetric);
+        nn1.fit(trainpatterns,classes);
+        res = nn1.kneighbors(testpattern);
+        print(res[0]) # Distâncias
+        print(classes[res[1]]) # Classes dos vizinhos mais próximos
+        print('Usando ', n_neighbor, ' vizinho classificou: ', nn1.predict(testpattern))
